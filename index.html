@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>患者指導用紙 印刷</title>
+<style>
+:root { --red:#C00000; --ink:#222; }
+* { box-sizing: border-box; }
+body { margin:0; background:#eef0f3; color:var(--ink); font-family:"BIZ UDPGothic","BIZ UDPゴシック","Meiryo",sans-serif; }
+
+/* ---------- 操作パネル ---------- */
+.panel { max-width:960px; margin:16px auto; padding:20px 24px; background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+.panel h1 { margin:0 0 14px; font-size:22px; }
+.row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.sign { padding:14px 16px; background:#FFF8E1; border:2px solid #E0B000; border-radius:8px; }
+.sign label { font-size:18px; font-weight:bold; }
+.sign input { font:inherit; font-size:20px; padding:6px 10px; width:14em; border:2px solid #999; border-radius:6px; }
+.panel button { font:inherit; cursor:pointer; }
+.sign button, .sheet-tools button.sub { font-size:15px; padding:6px 12px; border-radius:6px; border:1px solid #999; background:#fff; }
+.status { font-size:14px; color:#555; }
+.mode { margin-top:10px; font-size:15px; }
+.mode label { padding:4px 10px; border:1px solid #bbb; border-radius:6px; cursor:pointer; }
+.mode input { margin-right:4px; }
+.sec { margin:18px 0 6px; font-size:15px; font-weight:bold; color:#444; }
+.btns-big { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.btns-big button { font-size:24px; font-weight:bold; color:#fff; padding:24px 8px; border:none; border-radius:10px; }
+.btns-small { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.btns-small button { font-size:16px; font-weight:bold; color:#fff; padding:12px 6px; border:none; border-radius:8px; }
+.btns-big button:hover, .btns-small button:hover { filter:brightness(1.12); }
+/* 肥満症：用紙の上に出る操作バー（スクロールしても上に残る） */
+.sheet-tools { position:sticky; top:0; z-index:5; width:210mm; max-width:100%; margin:0 auto 8px; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:#FAFAFA; border:3px solid #555; border-radius:8px; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+.sheet-tools[hidden], .sheet-tools [hidden] { display:none !important; }
+.sheet-tools .tt { flex-basis:100%; font-weight:bold; font-size:16px; }
+.sheet-tools .sp { flex:1; }
+.sheet-tools button.rec { font-size:17px; font-weight:bold; color:#fff; background:#0D47A1; border:none; border-radius:8px; padding:8px 18px; }
+.sheet-tools .recline { flex-basis:100%; font-size:14px; color:#333; }
+.sheet-tools .recline b { font-size:15px; color:#000; }
+#recMsg.ok { color:#2E7D32; font-weight:bold; }
+#recMsg.ng { color:#C00000; font-weight:bold; }
+.sheet-tools button { font:inherit; cursor:pointer; }
+.sheet-tools button.go { font-size:17px; font-weight:bold; color:#fff; background:#2E7D32; border:none; border-radius:8px; padding:8px 18px; }
+.hint { margin:12px 0 0; font-size:14px; color:#555; }
+@media (max-width:640px){ .btns-big{grid-template-columns:1fr;} }
+
+/* ---------- 用紙 ---------- */
+.sheet { --m:#333; --l:#eee; display:none; width:210mm; min-height:297mm; margin:0 auto 24px; padding:12mm; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.2); font-size:11.7pt; line-height:1.42; }
+.sheet.active { display:block; }
+.banner { background:var(--m); color:#fff; padding:10px 14px; }
+.banner .t { font-size:23.4pt; font-weight:bold; line-height:1.3; }
+.banner .s { font-size:12.9pt; }
+h2 { font-size:15.2pt; margin:7pt 0 4pt; padding-bottom:2pt; color:var(--m); border-bottom:2px solid var(--m); }
+h2::before { content:"■ "; }
+h2 .sub { font-size:11.7pt; }
+.tg { display:flex; }
+.tg > div { flex:1; text-align:center; padding:4pt 4pt 6pt; border:3px solid var(--m); background:var(--l); }
+.tg > div + div { border-left-width:0; }
+.tg .l { font-weight:bold; font-size:11.7pt; color:var(--m); }
+.tg .v { font-size:28pt; font-weight:bold; color:var(--red); line-height:1.15; }
+.tg .u { font-size:12.9pt; font-weight:bold; color:var(--ink); }
+.tg .n { font-size:9.9pt; color:#444; }
+.note { font-size:10.5pt; color:#444; margin:3pt 0 0; }
+.note.ink { color:var(--ink); }
+table { border-collapse:collapse; width:100%; }
+b { color:#000; }
+.box b, .note b, .vt td.l b { color:var(--m); }
+/* 赤字の強調は下線付き：白黒で印刷されても強調だと分かるように */
+.r { color:var(--red); font-weight:bold; text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:3px; }
+.box { padding:5pt 10pt; background:var(--l); }
+.act td { padding:3.5pt 7pt; border-bottom:1px solid #BFBFBF; vertical-align:middle; }
+.act td.no { width:15mm; color:#fff; background:var(--m); font-size:17.5pt; font-weight:bold; text-align:center; border-bottom-color:transparent; }
+.act td.ti { width:52mm; font-weight:bold; font-size:13.5pt; line-height:1.4; color:var(--m); background:var(--l); }
+.kv td { padding:3.5pt 8pt; border-bottom:2px solid #fff; }
+.kv td.k { color:#fff; background:var(--m); font-weight:bold; font-size:12.3pt; text-align:center; }
+.kv td.d { background:var(--l); }
+.vt { border:2px solid var(--m); }
+.vt td, .vt th { border:1px solid #BFBFBF; padding:2.5pt 7pt; }
+.vt th { color:#fff; background:var(--m); font-size:11.7pt; text-align:left; }
+.vt th + th { text-align:center; }
+.vt td.big { text-align:center; font-size:21pt; font-weight:bold; color:var(--red); width:62mm; background:var(--l); }
+.callout { margin-top:7pt; padding:6pt 10pt; background:#FFF2CC; border:2px solid var(--red); font-size:12.3pt; }
+.calc { display:flex; }
+.calc > div { flex:1; text-align:center; padding:3pt 3pt 5pt; border:2px solid var(--m); }
+.calc > div + div { border-left-width:0; }
+.calc .l { font-weight:bold; font-size:11pt; color:var(--m); }
+.calc .cv { font-size:17pt; font-weight:bold; line-height:1.3; min-height:1.3em; }
+.calc .cv.blank { border-bottom:1px solid #888; margin:0 8mm 2pt; }
+.calc .cv small { font-size:10.5pt; }
+.calc .n { font-size:9.5pt; color:#444; }
+.sheet input.hw { font:inherit; font-weight:bold; font-size:12.9pt; width:4.2em; text-align:center; padding:0 2px; margin:0 2px; border:2px solid #E0B000; border-radius:4px; background:#FFF8E1; color:#000; }
+.foot { margin-top:8pt; border-top:1px solid #808080; padding-top:3pt; font-size:11.7pt; display:flex; gap:24mm; }
+.src { font-size:8.8pt; color:#666; }
+
+/* ---------- 白黒プリンター用 ---------- */
+body.bw .sheet { --m:#000 !important; --l:#EDEDED !important; }
+body.bw .banner { background:#fff; color:#000; border:3px solid #000; }
+body.bw .r { color:#000; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+body.bw .tg .v, body.bw .vt td.big { color:#000; }
+body.bw .callout { background:#fff; border:3px solid #000; }
+
+@page { size:A4; margin:0; }
+@media print {
+  body { background:#fff; }
+  .panel, .sheet-tools { display:none !important; }
+  .sheet input.hw { border:none; border-bottom:1px solid #888; border-radius:0; background:transparent; }
+  .sheet { margin:0; box-shadow:none; min-height:0; height:297mm; overflow:hidden; }
+  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <h1>患者指導用紙 印刷</h1>
+  <div class="row sign">
+    <label for="doc">担当医</label>
+    <input id="doc" type="text" placeholder="名前を入力" autocomplete="off">
+    <button id="clear" type="button">クリア</button>
+    <span class="status" id="status"></span>
+  </div>
+  <div class="row mode">
+    <span>印刷の色：</span>
+    <label><input type="radio" name="mode" value="color" checked>カラー</label>
+    <label><input type="radio" name="mode" value="bw">白黒プリンター用</label>
+    <span class="status">（このパソコンに保存されます）</span>
+  </div>
+  <div class="sec">生活習慣病</div>
+  <div class="btns-big" id="bigBtns"></div>
+  <div class="sec">その他の指導</div>
+  <div class="btns-small" id="smallBtns"></div>
+  <p class="hint">ボタンを押すと用紙が表示され、印刷画面が開きます（Enterキーで印刷）。<br>肥満症は用紙に移動します。用紙の身長・体重に入力してから「この内容で印刷」を押してください。<br>用紙の上の「記録」を押すと、指導内容の要約（30文字以内）がコピーされ、カルテに貼り付けられます。<br>担当医名は入力から6時間、このパソコンに保存されます。</p>
+</div>
+
+<div class="sheet-tools" id="tools" hidden>
+  <span class="tt" id="toolTitle"></span>
+  <span id="calcOut"></span>
+  <span class="sp"></span>
+  <button class="sub" id="calcClear" type="button">入力をクリア</button>
+  <button class="rec" id="recBtn" type="button">記録（カルテ用にコピー）</button>
+  <button class="go" id="printBtn" type="button">もう一度印刷</button>
+  <div class="recline">カルテ用：<b id="recText"></b><span id="recLen"></span>　<span id="recMsg"></span></div>
+</div>
+<div id="sheets"></div>
+
+<script>
+/* =====================================================================
+   用紙データ
+   書式: **太字**  !!赤字（白黒時は下線）!!  \n 明示改行
+   日本語は自動折り返しに任せない。2行以上は文節の区切りで \n を入れる。
+   ===================================================================== */
+const SHEETS = [
+/* ---------------- 高血圧 ---------------- */
+{ id:"ht", name:"高血圧", size:"big", rec:"高血圧：減塩6g未満・運動・家庭血圧測定を用紙で指導", m:"#B3261E", l:"#FCE9E7", date:"2026年9月",
+  title:"高血圧の方へ", sub:"血圧を下げることが、脳卒中・心臓病・腎臓病を防ぐいちばんの近道です",
+  src:"日本高血圧学会「高血圧管理・治療ガイドライン2025」",
+  body:[
+  ["h","あなたが目指す血圧"],
+  ["tg",[{l:"病院で測る血圧",v:"130/80",u:"mmHg 未満"},{l:"家で測る血圧（家庭血圧）",v:"125/75",u:"mmHg 未満",n:"治療では家庭血圧をより重視します"}]],
+  ["note","※75歳以上で通院に介助が必要な方などは、体の状態に合わせて主治医が目標を決めます。"],
+  ["h","家庭血圧の測り方"],
+  ["box",["**いつ**　朝：起きて1時間以内・トイレの後・**朝食と薬の前**　／　夜：寝る前",
+          "**どう**　いすに座って**1〜2分休んでから**、上腕（二の腕）で測る",
+          "**記録**　1回に**2回測って両方記録**し、受診時に手帳を持参"]],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["減塩　1日6g未満","麺の汁は残す。しょうゆ・ソースは「つける」\n漬物・ハム・練り物・インスタント食品を控える"],
+          ["野菜・果物をしっかり","野菜は1日350gが目安。カリウムが塩分を出します\n!!腎臓病の方はカリウム制限があるため主治医に相談!!"],
+          ["毎日30分の運動","ややきつくない程度の速歩きなどを\n**毎日30分以上（週180分以上）**"],
+          ["お酒はほどほどに","男性は**日本酒1合・ビール中瓶1本（500mL）まで**\n女性はその半分程度まで"],
+          ["適正体重を保つ","BMI（体重kg÷身長m÷身長m）**25未満**が目標\n少しの減量でも血圧は下がります"],
+          ["禁煙・十分な睡眠","たばこは血管を直接傷めます\n睡眠は6〜8時間を目安に"]]],
+  ["call",["!!薬は自己判断でやめないでください。!!血圧が下がったのは薬が効いているからです。",
+           "ふらつき・立ちくらみが続くときは、早めにご相談ください。",
+           "!!急に片側の手足が動かない・ろれつが回らない・激しい頭痛や胸痛!! → すぐ119番へ"]]
+]},
+/* ---------------- 脂質異常症 ---------------- */
+{ id:"lp", name:"脂質異常症", size:"big", rec:"脂質異常症：食事（脂質・食物繊維）・運動・服薬継続を指導", m:"#B8520E", l:"#FBE9DC", date:"2026年10月",
+  title:"脂質異常症（コレステロール・中性脂肪）の方へ", sub:"症状がなくても動脈硬化は進みます。心筋梗塞・脳梗塞を防ぎましょう",
+  src:"日本動脈硬化学会「動脈硬化性疾患予防ガイドライン2022年版」",
+  body:[
+  ["h","目指す値（悪玉コレステロール＝LDL-C）"],
+  ["vt",["あなたの状態","LDL-C の目標（mg/dL）"],[
+     ["**心筋梗塞（急性冠症候群）**を起こした方\n※1にあてはまる方","70 未満"],
+     ["**狭心症・脳梗塞**になったことがある方\n（ステント治療・バイパス手術後を含む）","100 未満"],
+     ["**糖尿病**で合併症（足の動脈硬化・網膜症・腎症・\n神経障害）がある方、またはたばこを吸う方","100 未満"],
+     ["**糖尿病・慢性腎臓病・末梢動脈疾患**がある方","120 未満"],
+     ["上記以外の方\n（年齢・血圧・喫煙などの危険度で決まります）","120〜160 未満"]],{fs:17}],
+  ["note","※1 狭心症・脳梗塞に加え、糖尿病・家族性高コレステロール血症がある方、心臓と脳の両方に病気がある方\n※脳梗塞は動脈硬化によるもの（アテローム血栓性）。あなたの目標値は主治医が決めます。",{mb:5}],
+  ["box",["**中性脂肪** 150未満（食後の採血なら175未満）　　**善玉コレステロール（HDL-C）** 40以上"]],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["脂身・バターを控える","肉の脂身・バター・ラード・生クリーム・洋菓子を減らし\n**魚・大豆製品・植物油**に置きかえる"],
+          ["コレステロールの\n多い食品は控えめに","卵黄・レバー・魚卵（たらこ・いくら）など\n1日**200mg未満**が目安（卵1個で約200mg）"],
+          ["食物繊維を増やす","野菜・海藻・きのこ・大豆・玄米や麦ごはんで\n1日**25g以上**を目指す"],
+          ["甘い物・お酒を控える","菓子・甘い飲み物・果物のとりすぎに注意\nお酒は**ビール中瓶1本・日本酒1合まで**"],
+          ["毎日30分の運動","**速歩きなどを毎日合計30分以上**\n善玉コレステロールが増え、中性脂肪が減ります"],
+          ["禁煙","たばこは善玉コレステロールを減らします\n**周りの人のたばこの煙**も避けましょう"]]],
+  ["call",["!!薬は自己判断でやめないでください。!!やめると数値は元に戻ります。",
+           "筋肉の痛み・だるさ・尿が茶色いときは、早めにご相談ください。"]]
+]},
+/* ---------------- 糖尿病 ---------------- */
+{ id:"dm", name:"糖尿病", size:"big", rec:"糖尿病：食事・運動・目標体重・合併症検診を用紙で指導", m:"#1F5F99", l:"#E3EEF8", date:"2026年9月",
+  title:"糖尿病の方へ", sub:"血糖を良い状態に保つことで、目・腎臓・神経の合併症と、心筋梗塞・脳梗塞を防げます",
+  src:"日本糖尿病学会「糖尿病診療ガイドライン2024」「高齢者糖尿病の血糖コントロール目標」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"HbA1c（ヘモグロビン・エーワンシー）",v:"7.0",vs:33,u:"% 未満",n:"合併症を防ぐための目標"}]],
+  ["note","※高齢の方や低血糖を起こしやすい薬を使っている方は、目標がゆるめになります\n　（7.5〜8.5%未満など）。主治医と確認しましょう。"],
+  ["note","※糖尿病の方は **血圧 130/80未満**、**LDLコレステロール 120未満** も同じくらい大切です。",{ink:1}],
+  ["h","今日からできる 5つのこと"],
+  ["act",[["食べる量を適正に","1日3食を規則正しく、腹八分目に\n**甘い飲み物（ジュース・加糖コーヒー）はやめる**\n極端な糖質制限は自己判断でしない"],
+          ["目標体重を知る","**身長(m)×身長(m)×22**（65歳以上は22〜25）\n例：身長160cmなら約56kg\n太り気味の方は**まず今の体重の3%**、できれば5%減"],
+          ["有酸素運動\n週150分以上","速歩きなどを**週3日以上**に分けて行う\n**運動しない日が2日以上続かない**ように\n食後に体を動かすと血糖が上がりにくくなります"],
+          ["筋トレ　週2〜3回","スクワット・かかと上げなど\n**続けて行わず1日おき**に"],
+          ["座りっぱなしを避ける","**30分座ったら立ち上がって3分ほど歩く**\nそれだけでも食後の血糖が改善します"]]],
+  ["h","合併症のチェックを忘れずに"],
+  ["kv",[["眼科","症状がなくても**年1回は眼科**で眼底検査を受ける"],
+         ["足","**毎日、足の裏・指の間を見る**。傷・水ぶくれ・色の変化があればすぐ相談。素足で歩かない"],
+         ["歯","歯周病は血糖を悪化させます。**定期的に歯科**を受診し、歯みがきを丁寧に"]],20],
+  ["call",["!!薬やインスリンは自己判断でやめたり、量を変えたりしないでください。!!",
+           "!!禁煙!!は合併症予防にとても大切です。ご希望があれば禁煙治療もご相談ください。"]]
+]},
+/* ---------------- 高カリウム血症 ---------------- */
+{ id:"hk", name:"高カリウム血症", size:"small", rec:"高K血症：高K食品の制限・ゆでこぼし・服薬継続を指導", m:"#6A3D9A", l:"#EFE7F6", date:"2026年10月",
+  title:"高カリウム血症の方へ", sub:"血液のカリウムが高すぎると、危険な不整脈の原因になります",
+  src:"日本腎臓学会「エビデンスに基づくCKD診療ガイドライン2023」\n　　　「慢性腎臓病に対する食事療法基準2014年版」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"血液のカリウム（K）",v:"5.5",u:"mEq/L 未満",n:"低すぎる（4.0未満）のもよくありません"},
+         {l:"1日のカリウム摂取量（腎臓病の方）",v:"1500〜2000",vs:22,u:"mg 以下",n:"腎臓の働きに応じて主治医が決めます"}]],
+  ["note","※制限の程度は、腎臓の働きや飲んでいる薬で変わります。\n　自己判断で野菜・果物を極端に減らさないでください。"],
+  ["h","カリウムの多い食品（とりすぎ注意）"],
+  ["kv",[["果物","バナナ・メロン・キウイ・アボカド・干し柿やドライフルーツ"],
+         ["野菜・いも","ほうれん草・かぼちゃ・里いも・さつまいも・じゃがいも"],
+         ["その他","豆類・納豆・海藻・野菜ジュース・青汁・抹茶・玉露"]]],
+  ["h","今日からできる 5つのこと"],
+  ["act",[["野菜はゆでこぼす","小さく切って水にさらし、ゆでて湯を捨てる\nこれでカリウムを減らせます"],
+          ["生の果物は控えめに","果物は缶詰（シロップは捨てる）にかえる\nジュース・ドライフルーツは避ける"],
+          ["減塩調味料に注意","カリウム入りの「減塩しょうゆ・減塩塩」は\n使う前に主治医・栄養士に確認"],
+          ["便秘を防ぐ","便秘になるとカリウムが上がりやすくなります\nお通じが3日以上ないときは相談を"],
+          ["薬を確認する","痛み止め（NSAIDs）やサプリメントで\nカリウムが上がることがあります"]]],
+  ["call",["!!カリウムを下げる薬や血圧の薬は、自己判断でやめないでください。!!",
+           "!!手足のしびれ・力が入らない・脈が乱れる・脈がとても遅い!! → すぐ受診を"]]
+]},
+/* ---------------- 低カリウム血症 ---------------- */
+{ id:"lk", name:"低カリウム血症", size:"small", rec:"低K血症：K摂取・甘草/下痢時の注意・服薬遵守を指導", m:"#00796B", l:"#E0F2EF", date:"2026年10月",
+  title:"低カリウム血症の方へ", sub:"カリウムが不足すると、だるさや不整脈の原因になります",
+  src:"厚生労働省「日本人の食事摂取基準（2025年版）」\n　　　日本腎臓学会「エビデンスに基づくCKD診療ガイドライン2023」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"血液のカリウム（K）",v:"3.5〜5.0",vs:24,u:"mEq/L",n:"心臓病の方は低めにならないよう注意します"},
+         {l:"1日のカリウム摂取の目標",v:"2600〜3000",vs:22,u:"mg 以上",n:"女性2600・男性3000（腎臓病の方を除く）"}]],
+  ["h","こんな症状に注意"],
+  ["box",["だるい・力が入らない・足がつる・便秘・どきどきする・脈が乱れる"]],
+  ["h","カリウムの多い食品（積極的に）"],
+  ["kv",[["果物","バナナ・キウイ・メロン・オレンジ・アボカド"],
+         ["野菜・いも","ほうれん草・ブロッコリー・かぼちゃ・いも類"],
+         ["その他","大豆製品・海藻・きのこ・牛乳・ヨーグルト\n!!ワーファリンを飲んでいる方は、納豆は食べないでください!!"]]],
+  ["h","今日からできる 4つのこと"],
+  ["act",[["毎食、野菜・果物を","野菜は1日350gが目安\n果物は1日200gほど（糖尿病の方は相談）"],
+          ["蒸す・レンジ調理で","カリウムは水に溶けやすい栄養素です\nゆでるより、蒸す・電子レンジ調理がおすすめ"],
+          ["漢方薬の甘草に注意","芍薬甘草湯などの漢方薬に含まれる甘草は\nカリウムを下げます。飲んでいたら伝えて"],
+          ["下痢・嘔吐は早めに","下痢や嘔吐が続くとカリウムが失われます\n2日以上続くときは連絡を"]]],
+  ["call",["!!カリウムの薬は指示どおりに。自己判断で増やしたり、やめたりしない。!!",
+           "利尿薬（むくみの薬）を飲んでいる方は、特にカリウムが下がりやすくなります。",
+           "!!腎臓病の方は、カリウムを増やす前に必ず主治医に相談してください。!!"]]
+]},
+/* ---------------- 高尿酸血症 ---------------- */
+{ id:"ua", name:"高尿酸血症・痛風", size:"small", rec:"高尿酸：飲水・節酒・プリン体制限・NSAIDs注意を指導", m:"#8A4F00", l:"#FBEEDC", date:"2026年10月",
+  title:"高尿酸血症・痛風の方へ", sub:"尿酸値を下げて、痛風発作と腎臓・血管の病気を防ぎましょう",
+  src:"日本痛風・尿酸核酸学会「高尿酸血症・痛風の治療ガイドライン 第3版［2022年追補版］」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"尿酸値の目標",v:"6.0",u:"mg/dL 以下",n:"痛風のある方・薬で治療中の方"},
+         {l:"高尿酸血症の基準",v:"7.0",u:"mg/dL を超える",n:"症状がなくても生活の見直しを"}]],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["水分をしっかり","尿の量が**1日2L以上**になるよう水・お茶を\n!!心不全などで水分制限のある方は指示を優先!!"],
+          ["お酒を控える","ビールだけでなく**すべてのお酒**で尿酸が上がる\n目安は**日本酒1合・ビール500mL**まで\n休肝日を週2日つくる"],
+          ["プリン体を控える","レバー・白子・あん肝・干物・煮干し・かつお節\n1日のプリン体は**400mg**程度まで"],
+          ["甘い飲み物をやめる","果糖（ジュース・清涼飲料水）は尿酸を上げます\nお茶・水にかえる"],
+          ["適正体重に","太り気味の方は、ゆっくり減量する\n急な絶食・過度な減量はかえって尿酸を上げます"],
+          ["軽めの有酸素運動","速歩きなど**ややきつくない運動**を続ける\n息が止まるほどの激しい運動は逆効果"]]],
+  ["h","痛風発作が起きたら"],
+  ["kv",[["冷やす","患部を冷やし、高くして休む。お酒・マッサージは避ける"],
+         ["尿酸の薬","飲んでいる薬は**発作中もやめずに続ける**"],
+         ["痛み止め","ロキソニンなどの痛み止めは、!!腎臓病・心不全を悪化させる!!ことがあります\n市販薬も含め、自己判断で飲まずに早めに受診を"],
+         ["他の病院で","整形外科などを受診したときは\n**自分から「腎臓病・心不全がある」と伝えてください**"]]],
+  ["call",["!!尿酸の薬は、値が下がってもやめないでください。!!やめると元に戻ります。",
+           "利尿薬など、尿酸を上げる薬もあります。気になるときはご相談ください。"]]
+]},
+/* ---------------- ワーファリン ---------------- */
+{ id:"wf", name:"ワーファリン", size:"small", rec:"ワーファリン：食事・飲み忘れ・出血/体調不良時対応を指導", m:"#8E244D", l:"#F7E4EC", date:"2026年10月",
+  title:"ワーファリンを飲んでいる方へ", sub:"血液を固まりにくくして、脳梗塞や血栓を防ぐ薬です",
+  src:"日本循環器学会「2020年改訂版 不整脈薬物治療ガイドライン」「2020年改訂版 弁膜症治療のガイドライン」\n　　　日本有病者歯科医療学会ほか「抗血栓療法患者の抜歯に関するガイドライン2020年版」",
+  body:[
+  ["h","効き具合の目標（PT-INR）"],
+  ["vt",["あなたの病気","PT-INR の目標"],[
+     ["心房細動（**70歳未満**）","2.0〜3.0"],
+     ["心房細動（**70歳以上**）","1.6〜2.6"],
+     ["**機械弁**（大動脈弁の方は 2.0〜2.5）","2.0〜3.0"]],{fs:18}],
+  ["note","※目安です。主治医が決めます。量は採血の結果で変わるので、採血の日は必ず受診を。"],
+  ["h","食べ物の注意"],
+  ["kv",[["食べない","!!納豆・青汁・クロレラ!!（薬が効かなくなります）"],
+         ["量を一定に","緑の野菜（ほうれん草・ブロッコリーなど）は普通の量ならOK\n毎日の量を大きく変えない。お酒も飲みすぎない"]]],
+  ["h","毎日の注意 4つ"],
+  ["act",[["飲む時間・飲み忘れ","毎日同じ時間に飲む。忘れたら同じ日ならすぐ1回分\n翌日に気づいたら1回とばす。!!2回分を一度に飲まない!!"],
+          ["ほかの薬を始める時","抗菌薬・痛み止め・水虫の薬・サプリで\n効き方が変わります。**服用中と必ず伝える**"],
+          ["歯科・手術の前に","**自己判断で休まない**。抜歯は多くの場合\n飲み続けたまま行えます。必ず主治医に相談"],
+          ["けがに気をつける","転倒・打撲に注意。ひげそりは電気かみそりで\n**頭を強く打ったら、症状がなくても受診**"]]],
+  ["h","体調を崩したとき（効きすぎに注意）"],
+  ["box",["!!食事がほとんどとれない・下痢や熱が続くときは、早めに連絡を!!",
+          "食事が減る・抗菌薬を飲むなどで、薬が効きすぎて出血しやすくなります",
+          "**自己判断で量を変えず**、PT-INRの検査を受けてください"]],
+  ["call",["!!すぐ連絡を!!：止まらない鼻血・歯ぐきの出血、黒い便、赤い尿、\n大きなあざ、ひどい頭痛・吐き気・手足のしびれ",
+           "お薬手帳とワーファリン手帳（カード）を、いつも持ち歩きましょう。"]]
+]},
+/* ---------------- 肥満症 ---------------- */
+{ id:"ob", name:"肥満症", size:"small", m:"#2E7D32", l:"#E6F2E7", date:"2026年10月",
+  title:"肥満症の方へ", sub:"内臓脂肪を減らすと、血圧・血糖・脂質がそろって良くなります",
+  src:"日本肥満学会「肥満症診療ガイドライン2022」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"まずの目標（3〜6か月で）",v:"3",u:"% 減量",n:"例：80kgの方なら約2.4kg（高度肥満は5〜10%）"},
+         {l:"おなか回り（腹囲）",v:"85／90",vs:24,u:"cm 未満",n:"男性85・女性90（おへその高さで測る）"}]],
+  ["calc"],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["毎日体重をはかる","朝（起床後・トイレの後）と夜（寝る前）にはかり\nグラフにつける。変化が見えると続きます"],
+          ["食べる量を減らす","1日の目安は**目標体重×25kcal以下**\n上の「あなたの数値」を目安にしましょう"],
+          ["ゆっくりよく噛む","1口30回を目安に。早食いは食べすぎのもと\n野菜・きのこ・海藻から食べはじめる"],
+          ["夜遅くに食べない","夕食は寝る2〜3時間前までに\n間食・甘い飲み物・お酒を減らす"],
+          ["運動は毎日30分","速歩きなど**週150分以上**が目標\n10分ずつに分けてもOK。筋トレもいっしょに"],
+          ["座りすぎを減らす","30分に1回は立ち上がる\nエレベーターより階段、1駅歩く"]]],
+  ["call",["!!極端な食事制限や自己流のサプリはやめましょう。!!リバウンドのもとです。",
+           "肥満症の注射薬は、条件を満たす方だけが使えます。主治医にご相談を。",
+           "いびき・日中の強い眠気がある方は、睡眠時無呼吸の検査をおすすめします。"]]
+]},
+/* ---------------- 弁膜症・人工弁 ---------------- */
+{ id:"vd", name:"弁膜症・人工弁", size:"small", rec:"弁膜症：IE予防（歯科前抗菌薬・口腔ケア）・発熱時対応を指導", m:"#283593", l:"#E5E8F6", date:"2026年10月",
+  title:"心臓弁膜症・人工弁の方へ", sub:"感染性心内膜炎の予防と、定期的な検査がとても大切です",
+  src:"日本循環器学会ほか「感染性心内膜炎診療ガイドライン」（2026年）\n　　　「2020年改訂版 弁膜症治療のガイドライン」",
+  body:[
+  ["h","感染性心内膜炎とは"],
+  ["box",["口の中などの細菌が血液に入り、心臓の弁にとりついて起こる重い感染症です。",
+          "傷んだ弁や人工弁には、細菌がつきやすくなっています。"]],
+  ["h","歯科を受診するとき"],
+  ["kv",[["必ず伝える","**心臓弁膜症・人工弁があること**を歯科医師に伝える"],
+         ["抗菌薬","抜歯・歯石取り・歯周病の治療・根の治療・インプラントの前に\n**処置の1時間前に抗菌薬を1回飲みます**\n人工弁の方は必ず。弁膜症の方は主治医が判断します"],
+         ["日ごろから","毎日の歯みがきと**定期的な歯科受診**で、むし歯・歯周病を防ぐ"]]],
+  ["h","毎日の注意 5つ"],
+  ["act",[["熱が続いたら受診","原因のわからない熱が**数日以上続く**ときは受診し\n「弁膜症・人工弁がある」と伝える"],
+          ["残った抗菌薬を\n飲まない","中途半端に飲むと、心内膜炎の診断が遅れます\n血液の検査をしてから治療するのが基本です"],
+          ["肌と口を清潔に","歯ぐき・皮膚の傷・アトピー性皮膚炎は\n細菌の入り口になります。早めに治療を"],
+          ["定期的に心エコー","症状がなくても定期検査を受ける\n!!息切れ・むくみ・胸の痛み・失神!!は早めに受診"],
+          ["機械弁の方は","ワーファリンを**生涯続けます**\n!!ほかの抗凝固薬（DOAC）には変えられません!!"]]],
+  ["call",["!!手術・内視鏡・カテーテル検査の前にも、弁膜症・人工弁があると伝えてください。!!",
+           "人工弁の手帳（カード）を、いつも持ち歩きましょう。",
+           "妊娠を考えている方は、事前に必ず主治医にご相談ください。"]]
+]},
+/* ---------------- 禁煙 ---------------- */
+{ id:"sm", name:"禁煙", size:"small", rec:"禁煙指導：加熱式・電子たばこの害、禁煙外来紹介を提案", m:"#37474F", l:"#E8EDF0", date:"2026年10月",
+  title:"たばこと健康 ― 禁煙のすすめ", sub:"禁煙は、心臓と血管を守るために今日からできる一番の治療です",
+  src:"日本循環器学会ほか「禁煙治療のための標準手順書 第8.1版」\n　　　日本呼吸器学会「加熱式タバコや電子タバコに関する見解と提言」\n　　　厚生労働省研究班「加熱式たばこに関するこれまでの知見の整理」（2026年3月）",
+  body:[
+  ["h","知っておいてほしいこと"],
+  ["kv",[["紙巻たばこ","心筋梗塞・脳卒中・がん・COPDの大きな原因\n**1日1〜2本でも**、心臓病のリスクははっきり上がります"],
+         ["加熱式たばこ","ニコチンを含み、有害物質も発生します\n**心臓・血管の病気との関連は「強い」**と評価（厚労省研究班2026）\n切り替えで害が減るという科学的根拠はありません"],
+         ["電子たばこ","日本ではニコチン入りの製品は販売が認められていません\nニコチンなしでも、加熱で有害物質が発生します\n禁煙の方法としては勧められていません"],
+         ["受動喫煙","加熱式でも、周りの人は有害物質を吸い込みます\n家族が吸い込む量は、紙巻と同じくらいになることも"]],34],
+  ["h","禁煙のコツ 4つ"],
+  ["act",[["禁煙の日を決める","「減らす」より「ゼロにする」\n灰皿・ライター・たばこを処分する"],
+          ["吸いたい時の対策","吸いたい気持ちは数分でおさまります\n水を飲む・深呼吸・歯みがき・その場を離れる"],
+          ["禁煙外来を使う","**12週間で5回通院**。条件を満たせば保険が使えます\n加熱式たばこの方も対象です\n飲み薬・貼り薬で、禁煙が成功しやすくなります"],
+          ["失敗しても諦めない","失敗は珍しくありません。何度でも挑戦を\n禁煙後の体重増加は、食事と運動で対処を"]]],
+  ["h","禁煙外来へのご紹介"],
+  ["box",["**ご希望があれば、担当医から禁煙外来へ紹介します。**",
+          "紹介状をお持ちいただくと、禁煙外来での治療がスムーズに始められます。"]],
+  ["call",["!!加熱式・電子たばこへの切り替えは、禁煙ではありません。!!",
+           "やめた直後から血圧・脈拍が落ち着き、年数とともに心臓病のリスクが下がります。",
+           "禁煙外来への紹介をご希望の方は、担当医にお声がけください。"]]
+]}
+];
+
+/* ---------- 描画 ---------- */
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/!!(.+?)!!/g,'<span class="r">$1</span>').replace(/\n/g,"<br>");
+
+function block(b) {
+  const [type, a, c] = b;
+  switch (type) {
+    case "h": return `<h2>${md(a)}</h2>`;
+    case "note": return `<p class="note${c && c.ink ? " ink" : ""}"${c && c.mb ? ` style="margin-bottom:${c.mb}pt"` : ""}>${md(a)}</p>`;
+    case "tg": return `<div class="tg">${a.map(t => `<div><div class="l">${md(t.l)}</div><span class="v"${t.vs ? ` style="font-size:${t.vs}pt"` : ""}>${md(t.v)}</span> <span class="u">${md(t.u)}</span>${t.n ? `<div class="n">${md(t.n)}</div>` : ""}</div>`).join("")}</div>`;
+    case "box": return `<div class="box">${a.map(l => `<div>${md(l)}</div>`).join("")}</div>`;
+    case "act": return `<table class="act">${a.map(([t, d], i) => `<tr><td class="no">${i + 1}</td><td class="ti">${md(t)}</td><td>${md(d)}</td></tr>`).join("")}</table>`;
+    case "kv": return `<table class="kv">${a.map(([k, d]) => `<tr><td class="k" style="width:${c || 32}mm">${md(k)}</td><td class="d">${md(d)}</td></tr>`).join("")}</table>`;
+    case "vt": return `<table class="vt"><tr><th>${md(a[0])}</th><th>${md(a[1])}</th></tr>${c.map(([l, v]) => `<tr><td class="l">${md(l)}</td><td class="big"${b[3] && b[3].fs ? ` style="font-size:${b[3].fs}pt"` : ""}>${md(v)}</td></tr>`).join("")}</table>`;
+    case "call": return `<div class="callout">${a.map(l => `<div>${md(l)}</div>`).join("")}</div>`;
+    case "calc": return `<h2>あなたの数値<span class="sub">（身長 <input class="hw" id="cH" type="text" inputmode="decimal" autocomplete="off"> cm・体重 <input class="hw" id="cW" type="text" inputmode="decimal" autocomplete="off"> kg）</span></h2>
+      <div class="calc">
+        <div><div class="l">BMI</div><div class="cv blank" id="oBMI"></div><div class="n" id="oBMIn">25以上が肥満</div></div>
+        <div><div class="l">目標体重</div><div class="cv blank" id="oStd"></div><div class="n">身長(m)×身長(m)×22</div></div>
+        <div><div class="l">1日のエネルギー（kcal）</div><div class="cv blank" id="oKcal"></div><div class="n" id="oKcaln">目標体重×25kcal以下</div></div>
+        <div><div class="l">減量の目標</div><div class="cv blank" id="oLoss"></div><div class="n" id="oLossn">3〜6か月で現体重の3%</div></div>
+      </div>`;
+  }
+  return "";
+}
+function render() {
+  document.getElementById("sheets").innerHTML = SHEETS.map(s => `
+  <div class="sheet" id="${s.id}" style="--m:${s.m};--l:${s.l}">
+    <div class="banner"><div class="t">${md(s.title)}</div><div class="s">${md(s.sub)}</div></div>
+    ${s.body.map(block).join("\n")}
+    <div class="foot"><span>医療機関名：<b>群馬県立心臓血管センター</b></span><span>担当医：<b class="docname"></b></span></div>
+    <div class="src">出典：${md(s.src)}　／　${s.date}作成</div>
+  </div>`).join("");
+  const btn = s => `<button type="button" data-s="${s.id}" style="background:${s.m}">${s.name}</button>`;
+  document.getElementById("bigBtns").innerHTML = SHEETS.filter(s => s.size === "big").map(btn).join("");
+  // その他の指導は淡い色（薄い地＋色文字＋色枠）で、生活習慣病の3つより控えめに
+  const btnSmall = s => `<button type="button" data-s="${s.id}" style="background:${s.l};color:${s.m};border:2px solid ${s.m}">${s.name}</button>`;
+  document.getElementById("smallBtns").innerHTML = SHEETS.filter(s => s.size === "small").map(btnSmall).join("");
+}
+render();
+
+/* ---------- 担当医（6時間保存） ---------- */
+const KEY = "shidou_doctor", TTL = 6 * 60 * 60 * 1000;
+const input = document.getElementById("doc"), status = document.getElementById("status");
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (d && Date.now() - d.t < TTL) return d;
+    localStorage.removeItem(KEY);
+  } catch (e) {}
+  return null;
+}
+function save(name) {
+  try {
+    if (name) localStorage.setItem(KEY, JSON.stringify({ name, t: Date.now() }));
+    else localStorage.removeItem(KEY);
+  } catch (e) {}
+}
+function apply(name) { document.querySelectorAll(".docname").forEach(el => el.textContent = name); }
+function showStatus() {
+  const d = load();
+  if (!d) { status.textContent = input.value ? "" : "未入力"; if (!input.value) apply(""); return; }
+  const left = TTL - (Date.now() - d.t);
+  status.textContent = `保存中（あと${Math.floor(left / 3600000)}時間${Math.floor(left % 3600000 / 60000)}分でリセット）`;
+}
+const init = load();
+if (init) { input.value = init.name; apply(init.name); }
+showStatus();
+setInterval(() => { if (input.value && !load()) { input.value = ""; apply(""); } showStatus(); }, 30000);
+input.addEventListener("input", () => { const v = input.value.trim(); apply(v); save(v); showStatus(); });
+document.getElementById("clear").addEventListener("click", () => { input.value = ""; apply(""); save(""); showStatus(); input.focus(); });
+
+/* ---------- 印刷の色（パソコンごとに保存） ---------- */
+const MODE_KEY = "shidou_print_mode";
+function setMode(m) { document.body.classList.toggle("bw", m === "bw"); try { localStorage.setItem(MODE_KEY, m); } catch (e) {} }
+let mode = "color";
+try { mode = localStorage.getItem(MODE_KEY) || "color"; } catch (e) {}
+document.querySelectorAll('input[name="mode"]').forEach(r => {
+  r.checked = r.value === mode;
+  r.addEventListener("change", () => setMode(r.value));
+});
+document.body.classList.toggle("bw", mode === "bw");
+
+/* ---------- 表示と印刷 ---------- */
+const $ = id => document.getElementById(id);
+const tools = $("tools");
+let current = null;
+const byId = id => SHEETS.find(s => s.id === id);
+function show(id) {
+  const s = byId(id); if (!s) return;
+  current = id;
+  document.querySelectorAll(".sheet").forEach(el => el.classList.toggle("active", el.id === id));
+  const ob = id === "ob";
+  tools.hidden = false;
+  tools.style.borderColor = s.m;
+  $("toolTitle").textContent = ob ? "肥満症：用紙の「身長」「体重」に入力すると、自動で計算されます" : `表示中：${s.name}`;
+  $("toolTitle").style.color = s.m;
+  $("calcOut").hidden = !ob;
+  $("calcClear").hidden = !ob;
+  $("printBtn").textContent = ob ? "この内容で印刷" : "もう一度印刷";
+  $("recMsg").textContent = "";
+  updateRec();
+}
+/* ---------- 記録（カルテ用の要約を30文字以内でコピー） ---------- */
+function recText() { return !current ? "" : current === "ob" ? obRec() : byId(current).rec; }
+function updateRec() { const t = recText(); $("recText").textContent = t; $("recLen").textContent = `（${[...t].length}文字）`; }
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); return true; } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = s; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+$("recBtn").addEventListener("click", async () => {
+  const ok = await copyText(recText());
+  $("recMsg").textContent = ok ? "コピーしました。カルテに貼り付けてください" : "コピーできませんでした。上の文を選んでコピーしてください";
+  $("recMsg").className = ok ? "ok" : "ng";
+});
+$("printBtn").addEventListener("click", () => doPrint());
+function doPrint() {
+  if (!input.value.trim() && !confirm("担当医が未入力です。このまま印刷しますか？")) { input.focus(); return; }
+  setTimeout(() => window.print(), 150);
+}
+document.querySelectorAll("#bigBtns button, #smallBtns button").forEach(b => b.addEventListener("click", () => {
+  show(b.dataset.s);
+  if (b.dataset.s === "ob") {
+    // 肥満症は印刷せずに用紙へ移動し、用紙の中で身長・体重を入力してもらう
+    tools.scrollIntoView({ behavior: "smooth", block: "start" });
+    $("cH").focus({ preventScroll: true });
+    return;
+  }
+  doPrint();
+}));
+
+/* ---------- 肥満症の計算（日本肥満学会 肥満症診療ガイドライン2022） ---------- */
+let lastCalc = null;
+function obRec() {
+  const c = lastCalc;
+  if (!c) return "肥満症：食事量・体重測定・運動・3%減量を指導";
+  if (c.severe) return `肥満症：BMI${r1(c.bmi)}、${r10(c.std * 20)}〜${r10(c.std * 25)}kcal/日で指導`;
+  if (c.obese) return `肥満症：BMI${r1(c.bmi)}、${r10(c.std * 25)}kcal/日・3%減を指導`;
+  return `肥満症用紙で生活指導（BMI${r1(c.bmi)}）`;
+}
+const r1 = x => (Math.round(x * 10) / 10).toFixed(1);
+const r10 = x => Math.round(x / 10) * 10;
+function setCell(id, html) { const el = $(id); el.innerHTML = html; el.classList.toggle("blank", !html); }
+function calc() {
+  const h = parseFloat($("cH").value), w = parseFloat($("cW").value);
+  const ok = h >= 100 && h <= 220 && w >= 20 && w <= 300;
+  lastCalc = null;
+  if (current === "ob") updateRec();
+  if (!ok) {
+    ["oBMI", "oStd", "oKcal", "oLoss"].forEach(id => setCell(id, ""));
+    $("oBMIn").textContent = "25以上が肥満";
+    $("oKcaln").textContent = "目標体重×25kcal以下";
+    $("oLossn").textContent = "3〜6か月で現体重の3%";
+    $("calcOut").textContent = ($("cH").value || $("cW").value)
+      ? "身長（100〜220cm）と体重（20〜300kg）を入力してください。"
+      : "入力しない場合は空欄で印刷されます（手書きで記入できます）。";
+    return;
+  }
+  const m = h / 100, bmi = w / (m * m), std = m * m * 22;
+  const grade = bmi < 18.5 ? "低体重" : bmi < 25 ? "普通体重" : bmi < 30 ? "肥満（1度）" : bmi < 35 ? "肥満（2度）" : bmi < 40 ? "肥満（3度）" : "肥満（4度）";
+  const severe = bmi >= 35, obese = bmi >= 25;
+  lastCalc = { bmi, std, severe, obese };
+  if (current === "ob") updateRec();
+  let kcal, kcaln, loss, lossn;
+  if (severe) {
+    kcal = `${r10(std * 20)}〜${r10(std * 25)}`; kcaln = "目標体重×20〜25kcal";
+    loss = `${r1(w * 0.05)}〜${r1(w * 0.10)}<small> kg減</small>`; lossn = "高度肥満：現体重の5〜10%";
+  } else if (obese) {
+    kcal = `${r10(std * 25)}<small> 以下</small>`; kcaln = "目標体重×25kcal以下";
+    loss = `${r1(w * 0.03)}<small> kg減</small>`; lossn = `3〜6か月で ${r1(w * 0.97)}kg に`;
+  } else {
+    kcal = "―"; kcaln = "BMI 25未満のため対象外";
+    loss = "―"; lossn = "BMI 25未満のため対象外";
+  }
+  setCell("oBMI", r1(bmi)); $("oBMIn").textContent = grade;
+  setCell("oStd", `${r1(std)}<small> kg</small>`);
+  setCell("oKcal", kcal); $("oKcaln").textContent = kcaln;
+  setCell("oLoss", loss); $("oLossn").textContent = lossn;
+  $("calcOut").textContent = obese ? `計算しました（BMI ${r1(bmi)}・${grade}）` : `計算しました（BMI ${r1(bmi)}・${grade}：減量の対象外）`;
+}
+$("cH").addEventListener("input", calc);
+$("cW").addEventListener("input", calc);
+$("calcClear").addEventListener("click", () => { $("cH").value = ""; $("cW").value = ""; calc(); $("cH").focus(); });
+calc();
+
+/* ---------- テスト用 ---------- */
+// ?sheet=xx で表示のみ / &bw=1 で白黒 / &h=170&w=80 で肥満症計算 / ?check=1 で折り返し・はみ出し検査
+const q = new URLSearchParams(location.search);
+if (q.get("bw")) document.body.classList.add("bw");
+if (q.get("h")) { $("cH").value = q.get("h"); $("cW").value = q.get("w"); calc(); }
+if (q.get("sheet")) show(q.get("sheet"));
+if (q.get("check")) document.fonts.ready.then(runCheck);
+
+function runCheck() {
+  const blockOf = el => { while (el && getComputedStyle(el).display.startsWith("inline")) el = el.parentElement; return el; };
+  const out = [];
+  document.querySelectorAll(".sheet").forEach(sh => {
+    sh.style.display = "block"; sh.style.minHeight = "0";
+    const groups = new Map();
+    const tw = document.createTreeWalker(sh, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) {
+      const t = tw.currentNode; if (!t.nodeValue.trim()) continue;
+      const b = blockOf(t.parentElement);
+      if (!groups.has(b)) groups.set(b, []);
+      groups.get(b).push(t);
+    }
+    for (const [b, texts] of groups) {
+      const iv = [];
+      for (const t of texts) for (let i = 0; i < t.length; i++) {
+        if (!t.nodeValue[i].trim()) continue;
+        const r = document.createRange(); r.setStart(t, i); r.setEnd(t, i + 1);
+        const rc = r.getBoundingClientRect(); if (rc.height > 0) iv.push([rc.top, rc.bottom]);
+      }
+      iv.sort((x, y) => x[0] - y[0]);
+      let lines = 0, end = -1e9;
+      for (const [top, bot] of iv) { if (top >= end - 1) { lines++; end = bot; } else end = Math.max(end, bot); }
+      const want = [...b.querySelectorAll("br")].filter(br => blockOf(br.parentElement) === b).length + 1;
+      if (lines > want) out.push(`WRAP ${sh.id} (${lines}>${want}): ${b.textContent.trim().slice(0, 60)}`);
+    }
+    const mm = sh.getBoundingClientRect().height / 96 * 25.4;
+    out.push(`HEIGHT ${sh.id}: ${mm.toFixed(1)}mm ${mm > 297 ? "OVER" : "ok"}`);
+  });
+  SHEETS.forEach(s => { const r = s.id === "ob" ? obRec() : s.rec; out.push(`REC ${s.id} ${[...r].length}${[...r].length > 30 ? " LONG" : ""}: ${r}`); });
+  const pre = document.createElement("pre"); pre.id = "checkResult"; pre.textContent = out.join("\n");
+  document.body.appendChild(pre);
+}
+</script>
+</body>
+</html>
