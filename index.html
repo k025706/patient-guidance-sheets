@@ -117,7 +117,7 @@ body.bw .callout { background:#fff; border:3px solid #000; }
 <body>
 
 <div class="panel">
-  <h1>患者指導用紙 印刷</h1>
+  <h1 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">患者指導用紙 印刷<a id="dlLink" download="患者指導用紙_印刷.html" style="font-size:14px;font-weight:normal;padding:5px 12px;border:1px solid #888;border-radius:6px;color:#222;text-decoration:none;background:#fff">⬇ このHTMLをダウンロード</a></h1>
   <div class="row sign">
     <label for="doc">担当医</label>
     <input id="doc" type="text" placeholder="名前を入力" autocomplete="off">
@@ -470,6 +470,9 @@ function render() {
   document.getElementById("smallBtns").innerHTML = SHEETS.filter(s => s.size === "small").map(btnSmall).join("");
 }
 render();
+
+/* ---------- このHTML自体をダウンロード（共有フォルダ・デスクトップ用） ---------- */
+document.getElementById("dlLink").href = location.href.split(/[?#]/)[0];
 
 /* ---------- 担当医（6時間保存） ---------- */
 const KEY = "shidou_doctor", TTL = 6 * 60 * 60 * 1000;
