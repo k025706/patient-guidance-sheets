@@ -88,6 +88,9 @@ b { color:#000; }
 .calc .cv.blank { border-bottom:1px solid #888; margin:0 8mm 2pt; }
 .calc .cv small { font-size:10.5pt; }
 .calc .n { font-size:9.5pt; color:#444; }
+.sheet select.as, .sheet input.as { font:inherit; font-weight:bold; font-size:12.9pt; padding:1px 4px; border:2px solid #E0B000; border-radius:4px; background:#FFF8E1; color:#000; }
+.sheet input.as { width:17em; }
+.as-print { display:none; }
 .sheet input.hw { font:inherit; font-weight:bold; font-size:12.9pt; width:4.2em; text-align:center; padding:0 2px; margin:0 2px; border:2px solid #E0B000; border-radius:4px; background:#FFF8E1; color:#000; }
 .foot { margin-top:8pt; border-top:1px solid #808080; padding-top:3pt; font-size:11.7pt; display:flex; gap:24mm; }
 .src { font-size:8.8pt; color:#666; }
@@ -103,6 +106,8 @@ body.bw .callout { background:#fff; border:3px solid #000; }
 @media print {
   body { background:#fff; }
   .panel, .sheet-tools { display:none !important; }
+  .sheet select.as, .sheet input.as { display:none !important; }
+  .as-print { display:inline-block; min-width:62mm; border-bottom:1.5px solid #000; text-align:center; font-weight:bold; }
   .sheet input.hw { border:none; border-bottom:1px solid #888; border-radius:0; background:transparent; }
   .sheet { margin:0; box-shadow:none; min-height:0; height:297mm; overflow:hidden; }
   * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -129,7 +134,7 @@ body.bw .callout { background:#fff; border:3px solid #000; }
   <div class="btns-big" id="bigBtns"></div>
   <div class="sec">その他の指導</div>
   <div class="btns-small" id="smallBtns"></div>
-  <p class="hint">ボタンを押すと用紙が表示され、印刷画面が開きます（Enterキーで印刷）。<br>肥満症は用紙に移動します。用紙の身長・体重に入力してから「この内容で印刷」を押してください。<br>用紙の上の「記録」を押すと、指導内容の要約（30文字以内）がコピーされ、カルテに貼り付けられます。<br>担当医名は入力から6時間、このパソコンに保存されます。</p>
+  <p class="hint">ボタンを押すと用紙が表示され、印刷画面が開きます（Enterキーで印刷）。<br>肥満症は用紙に移動します。用紙の身長・体重に入力してから「この内容で印刷」を押してください。<br>用紙の上の「記録」を押すと、指導内容の記録文がコピーされ、カルテに貼り付けられます。<br>担当医名は入力から6時間、このパソコンに保存されます。</p>
 </div>
 
 <div class="sheet-tools" id="tools" hidden>
@@ -151,7 +156,7 @@ body.bw .callout { background:#fff; border:3px solid #000; }
    ===================================================================== */
 const SHEETS = [
 /* ---------------- 高血圧 ---------------- */
-{ id:"ht", name:"高血圧", size:"big", rec:"高血圧：減塩6g未満・運動・家庭血圧測定を用紙で指導", m:"#B3261E", l:"#FCE9E7", date:"2026年9月",
+{ id:"ht", name:"高血圧", size:"big", rec:"生活習慣病療養計画書を作成し、内容について患者へ説明を行い、計画書を交付。高血圧：減塩（6g/日未満）・運動・節酒・適正体重・家庭血圧測定を用紙で指導した。", m:"#B3261E", l:"#FCE9E7", date:"2026年9月",
   title:"高血圧の方へ", sub:"血圧を下げることが、脳卒中・心臓病・腎臓病を防ぐいちばんの近道です",
   src:"日本高血圧学会「高血圧管理・治療ガイドライン2025」",
   body:[
@@ -174,7 +179,7 @@ const SHEETS = [
            "!!急に片側の手足が動かない・ろれつが回らない・激しい頭痛や胸痛!! → すぐ119番へ"]]
 ]},
 /* ---------------- 脂質異常症 ---------------- */
-{ id:"lp", name:"脂質異常症", size:"big", rec:"脂質異常症：食事（脂質・食物繊維）・運動・服薬継続を指導", m:"#B8520E", l:"#FBE9DC", date:"2026年10月",
+{ id:"lp", name:"脂質異常症", size:"big", rec:"生活習慣病療養計画書を作成し、内容について患者へ説明を行い、計画書を交付。脂質異常症：LDL-C管理目標、食事（飽和脂肪酸・コレステロール制限、食物繊維）・運動・禁煙・服薬継続を用紙で指導した。", m:"#B8520E", l:"#FBE9DC", date:"2026年10月",
   title:"脂質異常症（コレステロール・中性脂肪）の方へ", sub:"症状がなくても動脈硬化は進みます。心筋梗塞・脳梗塞を防ぎましょう",
   src:"日本動脈硬化学会「動脈硬化性疾患予防ガイドライン2022年版」",
   body:[
@@ -198,7 +203,7 @@ const SHEETS = [
            "筋肉の痛み・だるさ・尿が茶色いときは、早めにご相談ください。"]]
 ]},
 /* ---------------- 糖尿病 ---------------- */
-{ id:"dm", name:"糖尿病", size:"big", rec:"糖尿病：食事・運動・目標体重・合併症検診を用紙で指導", m:"#1F5F99", l:"#E3EEF8", date:"2026年9月",
+{ id:"dm", name:"糖尿病", size:"big", rec:"生活習慣病療養計画書を作成し、内容について患者へ説明を行い、計画書を交付。糖尿病：食事・運動・目標体重・合併症検診を用紙で指導した。", m:"#1F5F99", l:"#E3EEF8", date:"2026年9月",
   title:"糖尿病の方へ", sub:"血糖を良い状態に保つことで、目・腎臓・神経の合併症と、心筋梗塞・脳梗塞を防げます",
   src:"日本糖尿病学会「糖尿病診療ガイドライン2024」「高齢者糖尿病の血糖コントロール目標」",
   body:[
@@ -220,7 +225,7 @@ const SHEETS = [
            "!!禁煙!!は合併症予防にとても大切です。ご希望があれば禁煙治療もご相談ください。"]]
 ]},
 /* ---------------- 高カリウム血症 ---------------- */
-{ id:"hk", name:"高カリウム血症", size:"small", rec:"高K血症：高K食品の制限・ゆでこぼし・服薬継続を指導", m:"#6A3D9A", l:"#EFE7F6", date:"2026年10月",
+{ id:"hk", name:"高カリウム血症", size:"small", rec:"高カリウム血症の生活指導を実施した。高カリウム食品の制限、ゆでこぼし等の調理法、カリウム入り減塩調味料・NSAIDsへの注意、服薬継続について説明した。", m:"#6A3D9A", l:"#EFE7F6", date:"2026年10月",
   title:"高カリウム血症の方へ", sub:"血液のカリウムが高すぎると、危険な不整脈の原因になります",
   src:"日本腎臓学会「エビデンスに基づくCKD診療ガイドライン2023」\n　　　「慢性腎臓病に対する食事療法基準2014年版」",
   body:[
@@ -242,7 +247,7 @@ const SHEETS = [
            "!!手足のしびれ・力が入らない・脈が乱れる・脈がとても遅い!! → すぐ受診を"]]
 ]},
 /* ---------------- 低カリウム血症 ---------------- */
-{ id:"lk", name:"低カリウム血症", size:"small", rec:"低K血症：K摂取・甘草/下痢時の注意・服薬遵守を指導", m:"#00796B", l:"#E0F2EF", date:"2026年10月",
+{ id:"lk", name:"低カリウム血症", size:"small", rec:"低カリウム血症の生活指導を実施した。カリウムを含む食品の摂取、甘草含有漢方薬・利尿薬・下痢嘔吐時の注意、服薬遵守について説明した。", m:"#00796B", l:"#E0F2EF", date:"2026年10月",
   title:"低カリウム血症の方へ", sub:"カリウムが不足すると、だるさや不整脈の原因になります",
   src:"厚生労働省「日本人の食事摂取基準（2025年版）」\n　　　日本腎臓学会「エビデンスに基づくCKD診療ガイドライン2023」",
   body:[
@@ -265,7 +270,7 @@ const SHEETS = [
            "!!腎臓病の方は、カリウムを増やす前に必ず主治医に相談してください。!!"]]
 ]},
 /* ---------------- 高尿酸血症 ---------------- */
-{ id:"ua", name:"高尿酸血症・痛風", size:"small", rec:"高尿酸：飲水・節酒・プリン体制限・NSAIDs注意を指導", m:"#8A4F00", l:"#FBEEDC", date:"2026年10月",
+{ id:"ua", name:"高尿酸血症・痛風", size:"small", rec:"高尿酸血症・痛風の生活指導を実施した。飲水・節酒・プリン体と果糖の制限・適正体重について説明し、発作時のNSAIDsによる腎不全・心不全悪化のリスクと、他院受診時に既往を申告するよう指導した。", m:"#8A4F00", l:"#FBEEDC", date:"2026年10月",
   title:"高尿酸血症・痛風の方へ", sub:"尿酸値を下げて、痛風発作と腎臓・血管の病気を防ぎましょう",
   src:"日本痛風・尿酸核酸学会「高尿酸血症・痛風の治療ガイドライン 第3版［2022年追補版］」",
   body:[
@@ -288,7 +293,7 @@ const SHEETS = [
            "利尿薬など、尿酸を上げる薬もあります。気になるときはご相談ください。"]]
 ]},
 /* ---------------- ワーファリン ---------------- */
-{ id:"wf", name:"ワーファリン", size:"small", rec:"ワーファリン：食事・飲み忘れ・出血/体調不良時対応を指導", m:"#8E244D", l:"#F7E4EC", date:"2026年10月",
+{ id:"wf", name:"ワーファリン", size:"small", rec:"ワーファリン服薬指導を実施した。PT-INR目標、納豆・青汁・クロレラの禁止、飲み忘れ時の対応、併用薬・歯科処置時の注意、出血徴候、食事摂取不良・下痢時の効きすぎについて説明した。", m:"#8E244D", l:"#F7E4EC", date:"2026年10月",
   title:"ワーファリンを飲んでいる方へ", sub:"血液を固まりにくくして、脳梗塞や血栓を防ぐ薬です",
   src:"日本循環器学会「2020年改訂版 不整脈薬物治療ガイドライン」「2020年改訂版 弁膜症治療のガイドライン」\n　　　日本有病者歯科医療学会ほか「抗血栓療法患者の抜歯に関するガイドライン2020年版」",
   body:[
@@ -334,7 +339,7 @@ const SHEETS = [
            "いびき・日中の強い眠気がある方は、睡眠時無呼吸の検査をおすすめします。"]]
 ]},
 /* ---------------- 弁膜症・人工弁 ---------------- */
-{ id:"vd", name:"弁膜症・人工弁", size:"small", rec:"弁膜症：IE予防（歯科前抗菌薬・口腔ケア）・発熱時対応を指導", m:"#283593", l:"#E5E8F6", date:"2026年10月",
+{ id:"vd", name:"弁膜症・人工弁", size:"small", rec:"弁膜症・人工弁患者への指導を実施した。感染性心内膜炎の予防（歯科処置時の申告と抗菌薬予防投与、口腔・皮膚の清潔）、発熱持続時の受診と抗菌薬の自己判断服用の回避、定期的な心エコーについて説明した。", m:"#283593", l:"#E5E8F6", date:"2026年10月",
   title:"心臓弁膜症・人工弁の方へ", sub:"感染性心内膜炎の予防と、定期的な検査がとても大切です",
   src:"日本循環器学会ほか「感染性心内膜炎診療ガイドライン」（2026年）\n　　　「2020年改訂版 弁膜症治療のガイドライン」",
   body:[
@@ -356,7 +361,7 @@ const SHEETS = [
            "妊娠を考えている方は、事前に必ず主治医にご相談ください。"]]
 ]},
 /* ---------------- 禁煙 ---------------- */
-{ id:"sm", name:"禁煙", size:"small", rec:"禁煙指導：加熱式・電子たばこの害、禁煙外来紹介を提案", m:"#37474F", l:"#E8EDF0", date:"2026年10月",
+{ id:"sm", name:"禁煙", size:"small", rec:"禁煙指導を実施した。紙巻たばこに加え、加熱式・電子たばこの害、受動喫煙について言及し、禁煙外来紹介を提案した。", m:"#37474F", l:"#E8EDF0", date:"2026年10月",
   title:"たばこと健康 ― 禁煙のすすめ", sub:"禁煙は、心臓と血管を守るために今日からできる一番の治療です",
   src:"日本循環器学会ほか「禁煙治療のための標準手順書 第8.1版」\n　　　日本呼吸器学会「加熱式タバコや電子タバコに関する見解と提言」\n　　　厚生労働省研究班「加熱式たばこに関するこれまでの知見の整理」（2026年3月）",
   body:[
@@ -376,6 +381,48 @@ const SHEETS = [
   ["call",["!!加熱式・電子たばこへの切り替えは、禁煙ではありません。!!",
            "やめた直後から血圧・脈拍が落ち着き、年数とともに心臓病のリスクが下がります。",
            "禁煙外来への紹介をご希望の方は、担当医にお声がけください。"]]
+]},
+/* ---------- 慢性腎臓病 ---------- */
+{ id:"ck", name:"慢性腎臓病", size:"small", rec:"慢性腎臓病の生活指導を実施した。減塩（6g/日未満）、過度なたんぱく質摂取の回避、水・お茶でのこまめな水分摂取（アルコール・コーヒーは水分補給にならない）、脱水予防、NSAIDs等の腎毒性薬剤の回避、血圧管理と禁煙について説明した。", m:"#4E6B1F", l:"#EEF3E2", date:"2026年10月",
+  title:"慢性腎臓病（CKD）の方へ", sub:"腎臓の働きは一度落ちると戻りにくいため、今の働きを守ることが大切です",
+  src:"日本腎臓学会「エビデンスに基づくCKD診療ガイドライン2023」\n　　　「慢性腎臓病に対する食事療法基準2014年版」",
+  body:[
+  ["h","あなたが目指す値"],
+  ["tg",[{l:"血圧（病院で測る血圧）",v:"130/80",u:"mmHg 未満",n:"腎臓を守るいちばんの治療です"},
+         {l:"食塩",v:"6",u:"g/日 未満",n:"3g未満の極端な減塩は不要です"}]],
+  ["note","※腎臓の働き（eGFR）と尿たんぱくの値は、受診のたびに主治医と確認しましょう。"],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["減塩　1日6g未満","麺の汁は残す。漬物・ハム・練り物を控える\nしょうゆ・ソースは「かける」より「つける」"],
+          ["たんぱく質を\nとりすぎない","肉・魚の大盛りや、プロテイン・サプリは控える\n**必要な量は主治医・栄養士が決めます**"],
+          ["水分は水・お茶で","こまめに少しずつ。一度にたくさん飲まない\n!!アルコール・コーヒーは水分補給になりません!!\nジュース・スポーツドリンクを常に飲むのは避ける"],
+          ["脱水に気をつける","夏・発熱・下痢・食事がとれないときは早めに相談\n脱水で腎臓の働きが急に落ちることがあります"],
+          ["痛み止めに注意","ロキソニンなどの痛み止めは腎臓を傷めます\n市販薬・サプリも、使う前に主治医・薬剤師に相談"],
+          ["禁煙・適正体重","たばこは腎臓の血管も傷めます\n血糖・脂質の管理も腎臓を守ることにつながります"]]],
+  ["call",["!!心不全などで水分制限のある方は、その指示を優先してください。!!",
+           "カリウムやリンの制限が必要な方には、別に説明します。",
+           "造影剤を使う検査や手術の前には、腎臓病があることを伝えてください。"]]
+]},
+/* ---------- 偶発的に見つかった動脈硬化 ---------- */
+{ id:"as", name:"動脈硬化（偶発所見）", size:"small", rec:"", m:"#5D4037", l:"#F1EBE8", date:"2026年10月",
+  title:"動脈硬化が見つかった方へ", sub:"今から生活を整えることで、これ以上の進行を防ぎましょう",
+  src:"日本動脈硬化学会「動脈硬化性疾患予防ガイドライン2022年版」\n　　　日本高血圧学会「高血圧管理・治療ガイドライン2025」",
+  body:[
+  ["h","検査でわかったこと"],
+  ["asintro",["**動脈硬化が年齢に比べて進んでいる**ことがわかりました。",
+              "現時点では、特別な治療（薬や手術）はすぐには必要ないと考えています。",
+              "**これ以上動脈硬化を進めないための、体質づくり・生活習慣が一番の治療です。**"]],
+  ["h","動脈硬化を進める原因"],
+  ["kv",[["5つの原因","**高血圧・脂質異常症・糖尿病・喫煙・肥満**\n重なるほど、心筋梗塞・脳梗塞が起こりやすくなります"],
+         ["目標の値","血圧・コレステロール・血糖の目標は\n**あなたの状態に合わせて主治医がお伝えします**"]],34],
+  ["h","今日からできる 6つのこと"],
+  ["act",[["たばこをやめる","最も効果の大きい対策です\n加熱式・電子たばこも同じく血管を傷めます"],
+          ["減塩　1日6g未満","麺の汁は残す。漬物・加工食品を控える\n家庭で血圧を測り、記録しましょう"],
+          ["脂の質を変える","肉の脂身・バター・洋菓子を減らし\n**魚・大豆製品・野菜・海藻**を増やす"],
+          ["毎日30分の運動","速歩きなどを**週150分以上**\n30分座ったら立ち上がって少し歩く"],
+          ["適正体重を保つ","BMI（体重kg÷身長m÷身長m）**25未満**が目標\nお酒はほどほどに"],
+          ["定期的に検査を","血圧・コレステロール・血糖を定期的に確認\n**症状がなくても通院を続けましょう**"]]],
+  ["call",["!!胸の痛み・しめつけ、息切れ、片側の手足のしびれ・ろれつが回らない!! → すぐ受診・119番へ",
+           "歩くとふくらはぎが痛み、休むと治まる場合も、早めにご相談ください。"]]
 ]}
 ];
 
@@ -394,6 +441,10 @@ function block(b) {
     case "kv": return `<table class="kv">${a.map(([k, d]) => `<tr><td class="k" style="width:${c || 32}mm">${md(k)}</td><td class="d">${md(d)}</td></tr>`).join("")}</table>`;
     case "vt": return `<table class="vt"><tr><th>${md(a[0])}</th><th>${md(a[1])}</th></tr>${c.map(([l, v]) => `<tr><td class="l">${md(l)}</td><td class="big"${b[3] && b[3].fs ? ` style="font-size:${b[3].fs}pt"` : ""}>${md(v)}</td></tr>`).join("")}</table>`;
     case "call": return `<div class="callout">${a.map(l => `<div>${md(l)}</div>`).join("")}</div>`;
+    case "asintro": return `<div class="box asbox"><div>あなたは <select class="as" id="asSel">
+        <option value="cac">冠動脈CT（石灰化）</option><option value="ct">CTでの血管壁の石灰化</option><option value="free">その他（自由記載）</option><option value="blank">空欄（手書き）</option></select>
+        <input class="as" id="asFree" type="text" placeholder="検査・所見を入力" hidden><span class="as-print" id="asPrint"></span>
+        の検査で、</div>${a.map(l => `<div>${md(l)}</div>`).join("")}</div>`;
     case "calc": return `<h2>あなたの数値<span class="sub">（身長 <input class="hw" id="cH" type="text" inputmode="decimal" autocomplete="off"> cm・体重 <input class="hw" id="cW" type="text" inputmode="decimal" autocomplete="off"> kg）</span></h2>
       <div class="calc">
         <div><div class="l">BMI</div><div class="cv blank" id="oBMI"></div><div class="n" id="oBMIn">25以上が肥満</div></div>
@@ -471,19 +522,20 @@ function show(id) {
   const s = byId(id); if (!s) return;
   current = id;
   document.querySelectorAll(".sheet").forEach(el => el.classList.toggle("active", el.id === id));
-  const ob = id === "ob";
+  const ob = id === "ob", as = id === "as";
   tools.hidden = false;
   tools.style.borderColor = s.m;
-  $("toolTitle").textContent = ob ? "肥満症：用紙の「身長」「体重」に入力すると、自動で計算されます" : `表示中：${s.name}`;
+  $("toolTitle").textContent = ob ? "肥満症：用紙の「身長」「体重」に入力すると、自動で計算されます"
+    : as ? "動脈硬化：用紙の「見つかった検査」を選んでから印刷してください（空欄なら手書き用の線になります）" : `表示中：${s.name}`;
   $("toolTitle").style.color = s.m;
   $("calcOut").hidden = !ob;
   $("calcClear").hidden = !ob;
-  $("printBtn").textContent = ob ? "この内容で印刷" : "もう一度印刷";
+  $("printBtn").textContent = ob || as ? "この内容で印刷" : "もう一度印刷";
   $("recMsg").textContent = "";
   updateRec();
 }
-/* ---------- 記録（カルテ用の要約を30文字以内でコピー） ---------- */
-function recText() { return !current ? "" : current === "ob" ? obRec() : byId(current).rec; }
+/* ---------- 記録（カルテ用の記録文をコピー） ---------- */
+function recText() { return !current ? "" : current === "ob" ? obRec() : current === "as" ? asRec() : byId(current).rec; }
 function updateRec() { const t = recText(); $("recText").textContent = t; $("recLen").textContent = `（${[...t].length}文字）`; }
 async function copyText(s) {
   try { await navigator.clipboard.writeText(s); return true; } catch (e) {}
@@ -505,23 +557,46 @@ function doPrint() {
 }
 document.querySelectorAll("#bigBtns button, #smallBtns button").forEach(b => b.addEventListener("click", () => {
   show(b.dataset.s);
-  if (b.dataset.s === "ob") {
-    // 肥満症は印刷せずに用紙へ移動し、用紙の中で身長・体重を入力してもらう
+  if (b.dataset.s === "ob" || b.dataset.s === "as") {
+    // 肥満症・動脈硬化は印刷せずに用紙へ移動し、用紙の中で入力してもらう
     tools.scrollIntoView({ behavior: "smooth", block: "start" });
-    $("cH").focus({ preventScroll: true });
+    $(b.dataset.s === "ob" ? "cH" : "asSel").focus({ preventScroll: true });
     return;
   }
   doPrint();
 }));
 
+/* ---------- 動脈硬化：見つかった検査 ---------- */
+const AS_LABEL = { cac: "冠動脈CT（石灰化）", ct: "CTでの血管壁の石灰化" };
+const AS_REC = { cac: "冠動脈CTでの石灰化", ct: "CTでの血管壁の石灰化" };
+function asFinding() {
+  const v = $("asSel").value;
+  return v === "free" ? $("asFree").value.trim() : AS_LABEL[v] || "";
+}
+function asUpdate() {
+  $("asFree").hidden = $("asSel").value !== "free";
+  $("asPrint").textContent = asFinding() || "\u3000";
+  if (current === "as") updateRec();
+}
+function asRec() {
+  const f = asFinding();
+  const v = $("asSel").value, g = AS_REC[v] || (v === "free" ? f : "");
+  return `偶発的に指摘された動脈硬化所見${g ? "（" + g + "）" : ""}について説明した。現時点で特別な治療は要さないが、進行予防のため禁煙・減塩・食事・運動・体重管理と、血圧・脂質・血糖の定期的な評価の重要性を指導した。`;
+}
+$("asSel").addEventListener("change", () => { asUpdate(); if ($("asSel").value === "free") $("asFree").focus(); });
+$("asFree").addEventListener("input", asUpdate);
+asUpdate();
+
 /* ---------- 肥満症の計算（日本肥満学会 肥満症診療ガイドライン2022） ---------- */
 let lastCalc = null;
 function obRec() {
   const c = lastCalc;
-  if (!c) return "肥満症：食事量・体重測定・運動・3%減量を指導";
-  if (c.severe) return `肥満症：BMI${r1(c.bmi)}、${r10(c.std * 20)}〜${r10(c.std * 25)}kcal/日で指導`;
-  if (c.obese) return `肥満症：BMI${r1(c.bmi)}、${r10(c.std * 25)}kcal/日・3%減を指導`;
-  return `肥満症用紙で生活指導（BMI${r1(c.bmi)}）`;
+  const tail = "毎日の体重測定、食事（よく噛む・夜遅くに食べない）、運動と座位時間の短縮について用紙で指導した。";
+  if (!c) return "肥満症の生活指導を実施した。3〜6か月で3%の減量を目標に、" + tail;
+  const base = `肥満症の生活指導を実施した。身長${r1(c.h)}cm・体重${r1(c.w)}kg、BMI ${r1(c.bmi)}、目標体重 ${r1(c.std)}kg。`;
+  if (c.severe) return base + `1日${r10(c.std * 20)}〜${r10(c.std * 25)}kcal、現体重の5〜10%減量を目標とし、` + tail;
+  if (c.obese) return base + `1日${r10(c.std * 25)}kcal以下、3〜6か月で${r1(c.w * 0.03)}kg（3%）減量を目標とし、` + tail;
+  return base + "BMI 25未満のため体重維持を目標とし、" + tail;
 }
 const r1 = x => (Math.round(x * 10) / 10).toFixed(1);
 const r10 = x => Math.round(x / 10) * 10;
@@ -544,7 +619,7 @@ function calc() {
   const m = h / 100, bmi = w / (m * m), std = m * m * 22;
   const grade = bmi < 18.5 ? "低体重" : bmi < 25 ? "普通体重" : bmi < 30 ? "肥満（1度）" : bmi < 35 ? "肥満（2度）" : bmi < 40 ? "肥満（3度）" : "肥満（4度）";
   const severe = bmi >= 35, obese = bmi >= 25;
-  lastCalc = { bmi, std, severe, obese };
+  lastCalc = { bmi, std, severe, obese, h, w };
   if (current === "ob") updateRec();
   let kcal, kcaln, loss, lossn;
   if (severe) {
@@ -605,7 +680,7 @@ function runCheck() {
     const mm = sh.getBoundingClientRect().height / 96 * 25.4;
     out.push(`HEIGHT ${sh.id}: ${mm.toFixed(1)}mm ${mm > 297 ? "OVER" : "ok"}`);
   });
-  SHEETS.forEach(s => { const r = s.id === "ob" ? obRec() : s.rec; out.push(`REC ${s.id} ${[...r].length}${[...r].length > 30 ? " LONG" : ""}: ${r}`); });
+  SHEETS.forEach(s => { const r = s.id === "ob" ? obRec() : s.id === "as" ? asRec() : s.rec; out.push(`REC ${s.id} ${[...r].length}: ${r}`); });
   const pre = document.createElement("pre"); pre.id = "checkResult"; pre.textContent = out.join("\n");
   document.body.appendChild(pre);
 }
