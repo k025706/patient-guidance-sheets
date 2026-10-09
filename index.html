@@ -78,6 +78,13 @@ b { color:#000; }
 .vt td, .vt th { border:1px solid #BFBFBF; padding:2.5pt 7pt; }
 .vt th { color:#fff; background:var(--m); font-size:11.7pt; text-align:left; }
 .vt th + th { text-align:center; }
+.tb { border:2px solid var(--m); }
+.tb th { color:#fff; background:var(--m); font-size:11pt; padding:3pt 5pt; border:1px solid #BFBFBF; text-align:center; }
+.tb td { border:1px solid #BFBFBF; padding:3pt 6pt; vertical-align:middle; font-size:11pt; line-height:1.35; }
+.tb td:first-child { background:var(--l); font-weight:bold; color:var(--m); }
+.tb td.c { text-align:center; }
+.g { color:#8A8A8A; font-size:8.5pt; font-weight:normal; }
+.cont { text-align:right; font-size:10.5pt; font-weight:bold; margin-top:4pt; }
 .vt td.big { text-align:center; font-size:21pt; font-weight:bold; color:var(--red); width:62mm; background:var(--l); }
 .callout { margin-top:7pt; padding:6pt 10pt; background:#FFF2CC; border:2px solid var(--red); font-size:12.3pt; }
 .calc { display:flex; }
@@ -100,6 +107,7 @@ body.bw .sheet { --m:#000 !important; --l:#EDEDED !important; }
 body.bw .banner { background:#fff; color:#000; border:3px solid #000; }
 body.bw .r { color:#000; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
 body.bw .tg .v, body.bw .vt td.big { color:#000; }
+body.bw .tb td:first-child { color:#000; }
 body.bw .callout { background:#fff; border:3px solid #000; }
 
 @page { size:A4; margin:0; }
@@ -109,7 +117,7 @@ body.bw .callout { background:#fff; border:3px solid #000; }
   .sheet select.as, .sheet input.as { display:none !important; }
   .as-print { display:inline-block; min-width:62mm; border-bottom:1.5px solid #000; text-align:center; font-weight:bold; }
   .sheet input.hw { border:none; border-bottom:1px solid #888; border-radius:0; background:transparent; }
-  .sheet { margin:0; box-shadow:none; min-height:0; height:297mm; overflow:hidden; }
+  .sheet { margin:0; box-shadow:none; min-height:0; height:297mm; overflow:hidden; break-after:page; }
   * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 </style>
@@ -423,12 +431,109 @@ const SHEETS = [
           ["定期的に検査を","血圧・コレステロール・血糖を定期的に確認\n**症状がなくても通院を続けましょう**"]]],
   ["call",["!!胸の痛み・しめつけ、息切れ、片側の手足のしびれ・ろれつが回らない!! → すぐ受診・119番へ",
            "歩くとふくらはぎが痛み、休むと治まる場合も、早めにご相談ください。"]]
-]}
+]},
+/* ---------- 不眠（両面） ---------- */
+{ id:"sl", name:"不眠・睡眠薬（両面）", size:"small", m:"#3949AB", l:"#E8EAF6", date:"2026年10月",
+  rec:"不眠症について生活指導を実施した。必要な睡眠時間の個人差と床上時間を長くしすぎないこと、起床時刻の固定・朝の光・昼寝の制限・カフェインと寝酒の回避等の睡眠衛生、睡眠時無呼吸・夜間頻尿等の不眠の原因について説明した。睡眠薬は自己判断で中止せず段階的に減量・変更すること、各薬剤の特徴と転倒・依存等の注意点について用紙で説明した。",
+  title:"眠れないときに ―― 不眠の方へ", sub:"睡眠薬に頼る前に、まず「眠りのしくみ」と「生活の工夫」を知りましょう",
+  src:"厚生労働科学研究班・日本睡眠学会「睡眠薬の適正な使用と休薬のための診療ガイドライン」（2013年）\n　　　厚生労働省「健康づくりのための睡眠ガイド2023」、各薬剤の添付文書",
+  body:[
+  ["h","不眠を正しく知る"],
+  ["kv",[["必要な睡眠","必要な睡眠時間は人によって違い、**年齢とともに短くなります**\n「8時間眠らなければ」と思わなくて大丈夫です"],
+         ["寝床の時間","眠れないのに長く横になっていると、**かえって眠りが浅く**なります\n高齢の方は、寝床にいる時間を**8時間以上にしない**ことが目安です"],
+         ["隠れた原因","いびき・呼吸が止まる（**睡眠時無呼吸**）、足のむずむず、夜のトイレ\n痛み・かゆみ、夜間の息苦しさ、気分の落ち込み、カフェイン・お酒・薬"]],30],
+  ["h","今日からできる 6つの工夫"],
+  ["act",[["起きる時間をそろえる","休日も同じ時間に起きる\n起きたらカーテンを開けて**朝の光**を浴びる"],
+          ["眠くなってから寝床へ","寝床で15〜20分眠れなければ、いったん寝床を出る\n眠くなったら、また寝床に戻る"],
+          ["昼寝は短く","昼寝は**午後3時まで・30分以内**に\n夕方以降のうたた寝は夜の眠りを浅くします"],
+          ["カフェインと寝酒","コーヒー・緑茶・エナジードリンクは**夕方以降は控える**\n!!寝酒は眠りを浅くし、夜中に目が覚める原因になります!!"],
+          ["寝る前の過ごし方","寝る1時間前からスマホ・テレビを控え、部屋を暗めに\nぬるめのお風呂は寝る1〜2時間前までに"],
+          ["日中に体を動かす","散歩など**日中の運動**は、夜の眠りを深くします\n寝る直前の激しい運動は避けましょう"]]],
+  ["call",["!!大きないびき・呼吸が止まると言われた方!!は、睡眠時無呼吸の検査をおすすめします。",
+           "夜、横になると息苦しい・せきが出る場合は、心不全の悪化のことがあります。早めに受診を。",
+           "気分の落ち込みや、何をしても楽しくない状態が2週間以上続くときもご相談ください。"]],
+  ["cont","裏面に、睡眠薬の変え方と薬の特徴があります →"]
+  ],
+  title2:"睡眠薬を飲んでいる方・変更する方へ", sub2:"睡眠薬は「やめ方」「変え方」がとても大切です",
+  body2:[
+  ["h","なぜ薬を見直すのか"],
+  ["box",["昔からある睡眠薬（**ベンゾジアゼピン系**）を長く飲むと、特に高齢の方は",
+          "!!ふらつき・転倒・骨折、物忘れ、やめにくさ!!が起こりやすくなります。主治医と一緒に見直しましょう。"]],
+  ["h","薬を変える・減らすときの 4つのコツ"],
+  ["act",[["急にやめない","急にやめると、反動で眠れなくなったり\n不安・ふるえ・汗などが出ることがあります"],
+          ["少しずつ減らす","**2〜4週ごとに少しずつ**（4分の1程度ずつ）減らす\n**減らす量と間隔は主治医が決めます**"],
+          ["指示どおりに飲む","新しい薬を始めてから元の薬を減らすこともあります\n飲む時間・量は指示どおりに"],
+          ["はじめは浅くても","減らし始めの1〜2週間は眠りが浅く感じても\n多くは慣れてきます。睡眠の記録をつけると安心"]]],
+  ["h","主な睡眠薬の特徴"],
+  ["tbl",["種類（主な薬）","寝つき","夜中の\n目覚め","ふらつき\n依存","注意すること"],
+    {w:[54,17,17,21],center:[1,2,3],rows:[
+     ["覚醒を抑える薬\nデエビゴ・ベルソムラ\nクービビック","○","○","少ない","夢を多くみる・翌朝の眠気\n飲み合わせに注意する薬あり"],
+     ["体内時計を整える薬\nロゼレム","○","△","少ない","効き方は穏やか\n効果まで数週間かかることも"],
+     ["非ベンゾジアゼピン系\nマイスリー・ルネスタ\nアモバン","◎","△","ややあり","夜中のふらつき・転倒\n苦み（ルネスタ・アモバン）"],
+     ["ベンゾジアゼピン系\nハルシオン・レンドルミン・\nリスミー・サイレースなど","◎","○","あり","長く飲むと転倒・物忘れ\n少しずつ減らす"]]}],
+  ["note","※◎よく効く　○効く　△効きにくい（おおよその目安。効き方には個人差があります）"],
+  ["call",["!!お酒と一緒に飲まない。夜中に起きるときはふらつきに注意!!（手すり・足元の明かりを）",
+           "ほかの病院から睡眠薬・安定剤が出ている場合は、お薬手帳を見せてください。"]]
+  ]
+},
+/* ---------- 秋冬のワクチン ---------- */
+{ id:"v1", name:"ワクチン①（インフル・コロナ）", size:"small", m:"#00695C", l:"#E0F2F1", date:"2026年10月",
+  rec:"季節性ワクチンについて情報提供を行った。心疾患患者では感染を契機に心不全・心血管イベントが増悪しやすいこと、インフルエンザ・新型コロナワクチンの定期接種（60〜64歳の身体障害者手帳1級相当の特例を含む）、抗血栓薬内服中も休薬は不要で接種後2分以上圧迫し揉まないこと、接種後の胸痛・動悸等出現時は受診することを説明した。",
+  title:"秋冬に毎年受けたいワクチン", sub:"心臓病の方は、感染をきっかけに心不全や心筋梗塞が悪化しやすくなります",
+  src:"厚生労働省「インフルエンザ・新型コロナワクチンの定期接種」、各ワクチンの添付文書\n　　　前橋市「65歳以上のインフルエンザ定期予防接種（令和8年度）」",
+  body:[
+  ["h","毎年、流行の前に受けましょう"],
+  ["tbl",["ワクチン","いつ・何回","公費（定期接種）の対象","ポイント"],
+    {w:[52,28,54],rows:[
+     ["インフルエンザ\n~~不活化ワクチン（皮下注射）~~","毎年1回\n**10〜12月**に","65歳以上\n60〜64歳で心臓などの\n障害が重い方","心臓病の方は\n特に重症化しやすい"],
+     ["新型コロナ\n~~mRNA・組換えタンパク等~~\n~~（製品は年度により異なる）~~","毎年1回\n**秋〜冬**に","65歳以上\n60〜64歳で心臓などの\n障害が重い方","心筋炎・血栓・\n心不全悪化の原因に"]]}],
+  ["note","※インフルエンザと新型コロナのワクチンは、同じ日に受けることもできます。"],
+  ["h","60〜64歳の方へ"],
+  ["box",["心臓の病気で日常生活が大きく制限される方（**身体障害者手帳1級相当**）は",
+          "65歳前でも公費で受けられることがあります。**主治医にご相談ください**",
+          "（市町村への申請が必要です）"]],
+  ["h","接種のときの 4つの注意"],
+  ["act",[["血液をサラサラにする\n薬はやめない","ワーファリン・抗凝固薬・抗血小板薬は\n**飲んだまま接種できます。自己判断で休まない**"],
+          ["2分以上押さえる","接種後は**2分以上しっかり押さえる**\n!!揉まないでください（内出血の原因になります）!!"],
+          ["接種後の胸の症状","接種後数日以内の**胸の痛み・動悸・息切れ・むくみ**は\n心筋炎のことがあります。すぐ受診を"],
+          ["体調の悪い日は延期","熱（37.5℃以上）がある日は受けられません\n心不全が悪化しているときは主治医に相談を"]]],
+  ["box",["**前橋市にお住まいの方へ**　インフルエンザ（65歳以上）：自己負担 **1,500円**",
+          "接種期間 10月1日〜12月31日（予診票は自動で郵送されます）",
+          "新型コロナの自己負担額・期間は、市の案内をご確認ください"]],
+  ["call",["!!ワクチンを受けても、かかることはあります。!!手洗い・人混みでのマスクも続けましょう。",
+           "熱・せきに加えて息切れ・むくみ・体重増加があるときは、心不全の悪化かも。早めに受診を。"]]
+  ]
+},
+/* ---------- 一度は検討したいワクチン ---------- */
+{ id:"v2", name:"ワクチン②（肺炎球菌・帯状疱疹・RS）", size:"small", m:"#4527A0", l:"#EDE7F6", date:"2026年10月",
+  rec:"肺炎球菌（PCV20）・帯状疱疹（不活化）・RSウイルスワクチンについて情報提供を行った。各ワクチンの対象年齢・接種回数、定期接種と自治体助成・任意接種の別、抗血栓薬内服中も休薬は不要で接種後2分以上圧迫し揉まないことを説明した。",
+  title:"一度は検討したいワクチン", sub:"肺炎・帯状疱疹・RSウイルスは、心臓病の方が重症化しやすい感染症です",
+  src:"厚生労働省「高齢者の肺炎球菌ワクチン」「帯状疱疹ワクチン」、各ワクチンの添付文書\n　　　前橋市「帯状疱疹の定期予防接種」「帯状疱疹任意予防接種費用の一部助成」",
+  body:[
+  ["h","3つのワクチン"],
+  ["tbl",["ワクチン","回数","公費・助成","ポイント"],
+    {w:[50,30,70],rows:[
+     ["肺炎球菌\nプレベナー20\n~~20価肺炎球菌結合型ワクチン~~","**1回**","**65歳**の方（定期接種）\n60〜64歳で心臓などの\n障害が重い方\n~~過去に肺炎球菌ワクチンを受けた方は対象外~~","肺炎の原因で\n最も多い菌を防ぐ"],
+     ["帯状疱疹\nシングリックス\n~~乾燥組換え帯状疱疹ワクチン~~\n~~（不活化）~~","**2回**\n2か月あけて","**65・70・75…歳**になる年度の方\n（定期接種）\nそれ以外の50歳以上は\n市町村の助成がある場合も","発症を強く防ぐ\n帯状疱疹の後は\n脳卒中や\n心筋梗塞が増える\nという報告も"],
+     ["RSウイルス\nアレックスビー\nアブリスボ\n~~組換えRSウイルスワクチン~~","**1回**","公費の対象外（全額自己負担）\n60歳以上が対象\n~~アレックスビーは重症化リスクの~~\n~~高い18歳以上も対象~~","心不全悪化や\n入院の原因になる\nかぜのウイルス"]]}],
+  ["note","※肺炎球菌の定期接種は2026年4月からプレベナー20に変わりました。\n　ほかの肺炎球菌ワクチンは任意接種（全額自己負担）です。"],
+  ["note","※帯状疱疹には生ワクチン（1回）もありますが、心臓病の方には効果の高いシングリックスをおすすめします。"],
+  ["h","接種のときの注意"],
+  ["act",[["血液をサラサラにする\n薬はやめない","ワーファリン・抗凝固薬・抗血小板薬は\n**飲んだまま接種できます。自己判断で休まない**"],
+          ["2分以上押さえる","接種後は**2分以上しっかり押さえる**\n!!揉まないでください（内出血の原因になります）!!"],
+          ["腫れ・だるさ","シングリックス・アレックスビーは、接種した所の痛み・\nだるさ・発熱が出やすいですが、多くは数日で治まります"]]],
+  ["box",["**前橋市にお住まいの方へ**",
+          "帯状疱疹（定期接種）：生ワクチン **4,000円**、シングリックス **1回12,000円**",
+          "定期接種の対象外の50歳以上は、市の助成（同じ金額）があります",
+          "（**接種前の申請が必要**で、後からの払い戻しはありません）",
+          "肺炎球菌の自己負担額は、市の案内をご確認ください"]]
+  ]
+}
 ];
 
 /* ---------- 描画 ---------- */
 const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/!!(.+?)!!/g,'<span class="r">$1</span>').replace(/\n/g,"<br>");
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/!!(.+?)!!/g,'<span class="r">$1</span>').replace(/~~([\s\S]+?)~~/g,'<span class="g">$1</span>').replace(/\n/g,"<br>");
 
 function block(b) {
   const [type, a, c] = b;
@@ -440,6 +545,8 @@ function block(b) {
     case "act": return `<table class="act">${a.map(([t, d], i) => `<tr><td class="no">${i + 1}</td><td class="ti">${md(t)}</td><td>${md(d)}</td></tr>`).join("")}</table>`;
     case "kv": return `<table class="kv">${a.map(([k, d]) => `<tr><td class="k" style="width:${c || 32}mm">${md(k)}</td><td class="d">${md(d)}</td></tr>`).join("")}</table>`;
     case "vt": return `<table class="vt"><tr><th>${md(a[0])}</th><th>${md(a[1])}</th></tr>${c.map(([l, v]) => `<tr><td class="l">${md(l)}</td><td class="big"${b[3] && b[3].fs ? ` style="font-size:${b[3].fs}pt"` : ""}>${md(v)}</td></tr>`).join("")}</table>`;
+    case "tbl": return `<table class="tb"><tr>${a.map((h, i) => `<th${c.w && c.w[i] ? ` style="width:${c.w[i]}mm"` : ""}>${md(h)}</th>`).join("")}</tr>${c.rows.map(r => `<tr>${r.map((x, i) => `<td${c.center && c.center.includes(i) ? ' class="c"' : ""}>${md(x)}</td>`).join("")}</tr>`).join("")}</table>`;
+    case "cont": return `<div class="cont">${md(a)}</div>`;
     case "call": return `<div class="callout">${a.map(l => `<div>${md(l)}</div>`).join("")}</div>`;
     case "asintro": return `<div class="box asbox"><div>あなたは <select class="as" id="asSel">
         <option value="cac">冠動脈CT（石灰化）</option><option value="ct">CTでの血管壁の石灰化</option><option value="free">その他（自由記載）</option><option value="blank">空欄（手書き）</option></select>
@@ -456,13 +563,16 @@ function block(b) {
   return "";
 }
 function render() {
-  document.getElementById("sheets").innerHTML = SHEETS.map(s => `
-  <div class="sheet" id="${s.id}" style="--m:${s.m};--l:${s.l}">
-    <div class="banner"><div class="t">${md(s.title)}</div><div class="s">${md(s.sub)}</div></div>
-    ${s.body.map(block).join("\n")}
+  const page = (s, id, title, sub, body) => `
+  <div class="sheet" id="${id}" data-of="${s.id}" style="--m:${s.m};--l:${s.l}">
+    <div class="banner"><div class="t">${md(title)}</div><div class="s">${md(sub)}</div></div>
+    ${body.map(block).join("\n")}
     <div class="foot"><span>医療機関名：<b>群馬県立心臓血管センター</b></span><span>担当医：<b class="docname"></b></span></div>
     <div class="src">出典：${md(s.src)}　／　${s.date}作成</div>
-  </div>`).join("");
+  </div>`;
+  // body2 がある用紙は両面（2ページ）で印刷する
+  document.getElementById("sheets").innerHTML = SHEETS.map(s =>
+    page(s, s.id, s.title, s.sub, s.body) + (s.body2 ? page(s, s.id + "__2", s.title2, s.sub2, s.body2) : "")).join("");
   const btn = s => `<button type="button" data-s="${s.id}" style="background:${s.m}">${s.name}</button>`;
   document.getElementById("bigBtns").innerHTML = SHEETS.filter(s => s.size === "big").map(btn).join("");
   // その他の指導は淡い色（薄い地＋色文字＋色枠）で、生活習慣病の3つより控えめに
@@ -524,7 +634,7 @@ const byId = id => SHEETS.find(s => s.id === id);
 function show(id) {
   const s = byId(id); if (!s) return;
   current = id;
-  document.querySelectorAll(".sheet").forEach(el => el.classList.toggle("active", el.id === id));
+  document.querySelectorAll(".sheet").forEach(el => el.classList.toggle("active", el.dataset.of === id));
   const ob = id === "ob", as = id === "as";
   tools.hidden = false;
   tools.style.borderColor = s.m;
